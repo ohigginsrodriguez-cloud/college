@@ -1,17 +1,28 @@
 import simpy
 
+waiting_time_list = []
+
 
 def customer(env, id_customer, arrival_time, cashier):
 
     yield env.timeout(arrival_time)
 
     print(f"Customer {id_customer} arrives at t={env.now}")
+    arrival_time = env.now
 
     with cashier.request() as request:
 
         yield request
 
         print(f"The client {id_customer} is attended at t={env.now}")
+
+        service_start_time = env.now
+
+        waiting_time = service_start_time - arrival_time
+
+        waiting_time_list.append(waiting_time)
+
+        print(f"Customer {id_customer} waited {waiting_time} time units")
 
         yield env.timeout(2)
 
@@ -28,3 +39,9 @@ env.process(customer(env, 2, 1.5, cashier))
 env.process(customer(env, 3, 4, cashier))
 
 env.run()
+
+total_waiting_time = sum(waiting_time_list)
+average_waiting_time = total_waiting_time / len(waiting_time_list)
+
+print(f"Total waiting time: {total_waiting_time}")
+print(f"Average waiting time: {average_waiting_time}")
