@@ -4,7 +4,7 @@ import simpy
 env = simpy.Environment()
 
 
-# we can visualize the time usin 'now'
+# we can visualize the time using 'now'
 print(env.now)
 
 # we can wait time using 'timeout'
