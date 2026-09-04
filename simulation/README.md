@@ -12,7 +12,7 @@ observación de campo (`coffee_shop.csv`).
 ## Como usarlo
 
 1. Cuántas cajas simular
-2. Duración de la simulación en minutos
+2. Duracion de la simulacion en minutos
 
 Y muestra en terminal el registro de cada cliente y, al final, el numero de
 clientes atendidos, el tiempo de espera promedio y el máximo
