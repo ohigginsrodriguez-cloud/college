@@ -1,20 +1,17 @@
 import simpy
 import random
 
-# avg time service = 2.1 min per customer (33 min * 2 cashier) / 31 customers
-# time groups arrives [3, 1, 1, 2, 1, 4, 3, 11] min -> avg = 3.25 min
-# groups size = [5, 4, 2, 2, 3, 3, 6, 3, 2]
+# datos de entrada que consegui en el trabajo de campo
 
-SIMULATION_TIME = 60
-CAPACITY = 2
-waiting_times = []
+# avg time service = 2.1 min per customer (33 min * 2 cashiers) / 31 customers
+# time between group arrivals (min) = [3, 1, 1, 2, 1, 4, 3, 11] -> avg = 3.25 min
+# group sizes observed = [5, 4, 2, 2, 3, 3, 6, 3, 2]
 
-# Parametros ajustados a los datos reales (fitted exponential)
 MEAN_SERVICE_TIME = 2.1  # minutos, sacado de 66 / 31
 MEAN_INTERARRIVAL_TIME = 3.25  # minutos, sacado de 26 / 8
-
-# Tamanos de grupo observados (no son tiempos, se dejan como random.choice)
 GROUP_SIZES = [5, 4, 2, 2, 3, 3, 6, 3, 2]
+
+waiting_times = []
 
 
 def customer(env, id_customer, cashier):
@@ -39,7 +36,6 @@ def customer(env, id_customer, cashier):
             f"(waited {waiting_time:.2f} min)"
         )
 
-        # antes: random.uniform(1, 4)  -> ahora: exponencial ajustada a tus datos
         service_time = random.expovariate(1 / MEAN_SERVICE_TIME)
 
         yield env.timeout(service_time)
@@ -53,12 +49,10 @@ def customer_generator(env, cashier):
 
     while True:
 
-        # antes: random.expovariate(0.5) -> ahora: exponencial ajustada a tus datos
         interarrival_time = random.expovariate(1 / MEAN_INTERARRIVAL_TIME)
 
         yield env.timeout(interarrival_time)
 
-        # ahora llega un GRUPO, no una sola persona
         group_size = random.choice(GROUP_SIZES)
 
         for _ in range(group_size):
@@ -66,17 +60,29 @@ def customer_generator(env, cashier):
             id_customer += 1
 
 
-env = simpy.Environment()
+print("### Simulacion de caffeteria (datos reales de observacion) ###")
+print(f"Tiempo promedio de servicio: {MEAN_SERVICE_TIME} min")
+print(f"Tiempo promedio entre llegadas de grupos: {MEAN_INTERARRIVAL_TIME} min")
+print(f"Tamanos de grupos observados: {GROUP_SIZES}")
+print()
 
-cashier = simpy.Resource(env, CAPACITY)
+capacity = int(input("Cuantas cajas quieres simular? (1, 2, 3): "))
+sim_time = float(input("Duracion de la simulacion en minutos: "))
+print()
+
+env = simpy.Environment()
+cashier = simpy.Resource(env, capacity)
 
 env.process(customer_generator(env, cashier))
-
-env.run(until=SIMULATION_TIME)
-
-average_waiting_time = sum(waiting_times) / len(waiting_times)
-maximum_waiting_time = max(waiting_times)
+env.run(until=sim_time)
 
 print()
-print(f"Average waiting time: {average_waiting_time:.2f} minutes")
-print(f"Maximum waiting time: {maximum_waiting_time:.2f} minutes")
+if waiting_times:
+    average_waiting_time = sum(waiting_times) / len(waiting_times)
+    maximum_waiting_time = max(waiting_times)
+
+    print(f"Clientes atendidos: {len(waiting_times)}")
+    print(f"Average waiting time: {average_waiting_time:.2f} minutes")
+    print(f"Maximum waiting time: {maximum_waiting_time:.2f} minutes")
+else:
+    print("No llegaron clientes en el tiempo simulado.")

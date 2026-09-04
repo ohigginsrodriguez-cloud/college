@@ -19,7 +19,7 @@ se calcularon a partir de una observación real de 33 minutos con 2 cajas.
 
 El programa pide por terminal:
 
-1. Cuántas cajas (servidores) simular
+1. Cuántas cajas simular
 2. Duración de la simulación en minutos
 
 ## Salida
