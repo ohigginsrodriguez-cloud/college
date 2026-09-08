@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 a = 5
 c = 3
 m = 16
@@ -14,3 +16,6 @@ for n in range(100):
 # Imprime solo los primeros y últimos para no saturar la consola
 for n in range(0, 100):
     print(f"{n+1}: Xn={int(valores[n]*m)}, rn={valores[n]:.4f}")
+
+
+# falta agreagar grafica con matplotlib
