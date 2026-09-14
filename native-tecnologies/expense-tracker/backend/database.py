@@ -10,7 +10,9 @@ try:
         f"user={os.getenv('DB_USER')} "
         f"host={os.getenv('DB_HOST')} "
         f"password={os.getenv('DB_PASSWORD')} "
+        f"port={os.getenv('DB_PORT')}"
     )
+    print("Connection succesfull")
 except:
     print("I am unable to connect to the database")
 
@@ -18,17 +20,11 @@ except:
 with conn.cursor() as curs:
 
     try:
-        # simple single row system query
-        curs.execute("SELECT version()")
-
         # returns a single row as a tuple
         single_row = curs.fetchone()
 
         # use an f-string to print the single tuple returned
         print(f"{single_row}")
-
-        # simple multi row system query
-        curs.execute("SELECT query, backend_type FROM pg_stat_activity")
 
         # a default install should include this query and some backend workers
         many_rows = curs.fetchmany(5)
