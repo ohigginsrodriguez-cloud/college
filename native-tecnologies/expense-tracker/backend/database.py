@@ -10,7 +10,7 @@ try:
         f"user={os.getenv('DB_USER')} "
         f"host={os.getenv('DB_HOST')} "
         f"password={os.getenv('DB_PASSWORD')} "
-        f"port={os.getenv('DB_PORT')}"
+        f"port={os.getenv('DB_PORT')} "
     )
     print("Connection succesfull")
 except:
