@@ -8,3 +8,7 @@ class expense(BaseModel):
     description: str | None
     category: str
     date: date
+
+
+class expense(expense):
+    id: int
