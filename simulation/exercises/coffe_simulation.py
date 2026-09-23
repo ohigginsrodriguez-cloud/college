@@ -85,4 +85,4 @@ if waiting_times:
     print(f"Average waiting time: {average_waiting_time:.2f} minutes")
     print(f"Maximum waiting time: {maximum_waiting_time:.2f} minutes")
 else:
-    print("No llegaron clientes en el tiempo simulado.")
+    print("No llegaron clientes en el tiempo simulado")
