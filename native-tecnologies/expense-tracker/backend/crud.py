@@ -10,7 +10,7 @@ def get_expenses():
 
     with conn.cursor() as curs:
         try:
-            rows = curs.fetchall()
+            return rows = curs.fetchall()
         
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -23,7 +23,7 @@ def get_expense():
 
     with conn.cursor() as curs:
         try:
-            rows = curs.fetchone()
+            return rows = curs.fetchone()
         
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
