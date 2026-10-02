@@ -13,6 +13,3 @@ def get_db():
             port=os.getenv('DB_PORT')
             )
 
-db = get_db()
-if db: 
-    print("Connection succesfull")

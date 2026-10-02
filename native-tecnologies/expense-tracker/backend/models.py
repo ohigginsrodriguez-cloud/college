@@ -1,14 +1,18 @@
 from pydantic import BaseModel, Field
 from datetime import date
+from decimal import Decimal
 
 
-class expense(BaseModel):
+class Expense(BaseModel):
     name: str
-    amount: float
-    description: str | None
+    amount: Decimal
+    description: str | None = None
     category: str
     date: date
 
+class ExpensePost(Expense):
+    pass
 
-class expense(expense):
-    id: int
+class ExpenseGet(Expense):
+    expense_id: int
+   
