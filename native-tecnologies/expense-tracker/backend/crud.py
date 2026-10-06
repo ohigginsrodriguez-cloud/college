@@ -1,32 +1,54 @@
 from database import get_db
 import psycopg2
+from decimal import Decimal
+from datetime import date
 
+
+def add_expense(name: str, amount: Decimal, category: str, date: date, description: str | None = None):
+    conn = get_db()
+
+    with conn.cursor() as cur:
+        try:
+            cur.execute("INSERT INTO expense (name, amount, description, category, date) VALUES (%s, %s, %s, %s, %s) RETURNING expense_id",(name, amount, description, category, date) )
+        except(Exception, psycopg2.DatabaseError) as error:
+            print(error)
+
+    conn.commit()
+    conn.close()
+            
+def update_expense():
+    pass
+
+def remove_expense():
+    pass
 
 def get_expenses():
-    try:
-        conn = get_db()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+    conn = get_db()
 
-    with conn.cursor() as curs:
+    with conn.cursor() as cur:
         try:
-            return rows = curs.fetchall()
+            cur.execute("SELECT * FROM expense")
+            rows = cur.fetchall()
+            return rows
         
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+        finally:
+            conn.close()
 
-def get_expense():
-    try:
-        conn = get_db()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+def get_expense(expense_id: int):
+    conn = get_db()
 
-    with conn.cursor() as curs:
+    with conn.cursor() as cur:
         try:
-            return rows = curs.fetchone()
+            cur.execute("SELECT * FROM expense WHERE expense_id = %s", (expense_id,))
+            row = cur.fetchone()
+            return row
         
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-
-get_expense()   
-get_expenses()
+        finally:
+            conn.close()
+    
+get_expenses()   
+get_expense(3)
