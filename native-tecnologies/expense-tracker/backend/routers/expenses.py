@@ -9,7 +9,7 @@ router = APIRouter(
         responses={404: {"description": "Not found"}},
         )
 
-@router.post("/")
+@router.post("/", response_model=ExpenseGet)
 def create_expense(expense: ExpensePost):
     new_expense = add_expense(expense)
     return get_expense(new_expense)
@@ -24,10 +24,12 @@ def read_expense_by_id(expense_id: int):
     return get_expense(expense_id)
 
 
-@router.put("/{expense_id}")
+@router.put("/{expense.expense_id}", response_model=ExpenseGet)
 def edit_expense(expense: ExpensePut):
-    return update_expense(expense.expense_id)
-
+    expense_updated = update_expense(expense.expense_id)
+    if expense_updated:
+        return get_expense(expense.expense_id)
+    return 
 
 @router.delete("/{expense_id}")
 def delete_expense(expense_id: int):

@@ -1,11 +1,9 @@
 import psycopg2
 import psycopg2.extras
-from decimal import Decimal
-from datetime import date
 
 
 from database import get_db
-from models import ExpensePost, ExpensePut, ExpenseGet
+from models import ExpensePost, ExpensePut
 
 
 def add_expense(expense: ExpensePost):
@@ -32,7 +30,9 @@ def update_expense(expense: ExpensePut):
         try:
             cur.execute("UPDATE expense SET name = %s, amount = %s, description = %s, category = %s, date = %s WHERE expense_id = %s", 
                         (expense.name, expense.amount, expense.description, expense.category, expense.date, expense.expense_id))
+            rows_updated = cur.rowcount
             conn.commit()
+            return rows_updated 
 
         except(Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -48,6 +48,7 @@ def remove_expense(expense_id: int):
             cur.execute("DELETE FROM expense WHERE expense_id = %s", (expense_id,))
             rows_deleted = cur.rowcount
             conn.commit()
+            return rows_deleted
         except(Exception, psycopg2.DatabaseError) as error:
             print(error)
             conn.rollback()
@@ -76,7 +77,8 @@ def get_expense(expense_id: int):
         try:
             dict_cur.execute("SELECT * FROM expense WHERE expense_id = %s", (expense_id,))
             row = dict_cur.fetchone()
-            print(row)  
+            if row is None:
+                return
             return dict(row)
         
         except (Exception, psycopg2.DatabaseError) as error:
