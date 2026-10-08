@@ -1,31 +1,37 @@
-from database import get_db
 import psycopg2
+import psycopg2.extras
 from decimal import Decimal
 from datetime import date
 
 
-def add_expense(name: str, amount: Decimal, category: str, date: date, description: str | None = None):
+from database import get_db
+from models import ExpensePost, ExpensePut, ExpenseGet
+
+
+def add_expense(expense: ExpensePost):
     conn = get_db()
 
     with conn.cursor() as cur:
         try:
-            cur.execute("INSERT INTO expense (name, amount, description, category, date) VALUES (%s, %s, %s, %s, %s) RETURNING expense_id",(name, amount, description, category, date))
-            expense = cur.fetchone()
+            cur.execute("INSERT INTO expense (name, amount, description, category, date) VALUES (%s, %s, %s, %s, %s) RETURNING expense_id",
+                        (expense.name, expense.amount, expense.description, expense.category, expense.date))
+            new_expense = cur.fetchone()
             conn.commit()
 
-            return expense[0]
+            return new_expense[0]
         except(Exception, psycopg2.DatabaseError) as error:
             print(error)
             conn.rollback()
         finally:
             conn.close()
             
-def update_expense(expense_id: int, name: str, amount: Decimal, category: str, date: date, description: str | None = None):
+def update_expense(expense: ExpensePut):
     conn = get_db()
 
     with conn.cursor() as cur:
         try:
-            cur.execute("UPDATE expense SET name = %s, amount = %s, description = %s, category = %s, date = %s WHERE expense_id = %s", (name, amount, description, category, date, expense_id))
+            cur.execute("UPDATE expense SET name = %s, amount = %s, description = %s, category = %s, date = %s WHERE expense_id = %s", 
+                        (expense.name, expense.amount, expense.description, expense.category, expense.date, expense.expense_id))
             conn.commit()
 
         except(Exception, psycopg2.DatabaseError) as error:
@@ -40,6 +46,7 @@ def remove_expense(expense_id: int):
     with conn.cursor() as cur:
         try:
             cur.execute("DELETE FROM expense WHERE expense_id = %s", (expense_id,))
+            rows_deleted = cur.rowcount
             conn.commit()
         except(Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -50,12 +57,12 @@ def remove_expense(expense_id: int):
 def get_expenses():
     conn = get_db()
 
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as dict_cur:
         try:
-            cur.execute("SELECT * FROM expense")
-            rows = cur.fetchall()
-            print(*rows, sep="\n")
-            return rows
+            dict_cur.execute("SELECT * FROM expense")
+            rows = dict_cur.fetchall()
+            list_rows = [dict(row) for row in rows]
+            return list_rows 
         
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -65,23 +72,14 @@ def get_expenses():
 def get_expense(expense_id: int):
     conn = get_db()
 
-    with conn.cursor() as cur:
+    with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as dict_cur:
         try:
-            cur.execute("SELECT * FROM expense WHERE expense_id = %s", (expense_id,))
-            row = cur.fetchone()
+            dict_cur.execute("SELECT * FROM expense WHERE expense_id = %s", (expense_id,))
+            row = dict_cur.fetchone()
             print(row)  
-            return row
+            return dict(row)
         
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
             conn.close()
-
-if __name__ == "__main__":
-    new_id = add_expense("gym", 500, "salud", date.today())
-    get_expenses()
-    get_expense(new_id)
-    update_expense(new_id, "gymmmm", 499, "health" ,date.today())
-    get_expense(new_id)
-    remove_expense(new_id)
-    get_expenses()
