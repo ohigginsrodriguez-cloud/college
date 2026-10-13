@@ -3,7 +3,7 @@ import psycopg2.extras
 
 
 from database import get_db
-from models import ExpensePost, ExpensePut
+from models import ExpensePost
 
 
 def add_expense(expense: ExpensePost):
@@ -17,26 +17,26 @@ def add_expense(expense: ExpensePost):
             conn.commit()
 
             return new_expense[0]
-        except(Exception, psycopg2.DatabaseError) as error:
-            print(error)
+        except Exception:
             conn.rollback()
+            raise 
         finally:
             conn.close()
             
-def update_expense(expense: ExpensePut):
+def update_expense(expense_id: int, expense: ExpensePost):
     conn = get_db()
 
     with conn.cursor() as cur:
         try:
             cur.execute("UPDATE expense SET name = %s, amount = %s, description = %s, category = %s, date = %s WHERE expense_id = %s", 
-                        (expense.name, expense.amount, expense.description, expense.category, expense.date, expense.expense_id))
+                        (expense.name, expense.amount, expense.description, expense.category, expense.date, expense_id))
             rows_updated = cur.rowcount
             conn.commit()
             return rows_updated 
 
-        except(Exception, psycopg2.DatabaseError) as error:
-            print(error)
+        except Exception:
             conn.rollback()
+            raise
         finally:
             conn.close()
 
@@ -49,9 +49,9 @@ def remove_expense(expense_id: int):
             rows_deleted = cur.rowcount
             conn.commit()
             return rows_deleted
-        except(Exception, psycopg2.DatabaseError) as error:
-            print(error)
+        except Exception:
             conn.rollback()
+            raise
         finally:
             conn.close()
 
@@ -65,8 +65,8 @@ def get_expenses():
             list_rows = [dict(row) for row in rows]
             return list_rows 
         
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+        except Exception:
+            raise
         finally:
             conn.close()
 
@@ -81,7 +81,7 @@ def get_expense(expense_id: int):
                 return
             return dict(row)
         
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+        except Exception:
+            raise
         finally:
             conn.close()

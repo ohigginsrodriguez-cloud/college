@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from crud import add_expense, get_expenses, get_expense, update_expense, remove_expense
-from models import ExpensePost, ExpenseGet, ExpensePut
+from models import ExpensePost, ExpenseGet
 
 
 router = APIRouter(
@@ -24,11 +24,11 @@ def read_expense_by_id(expense_id: int):
     return get_expense(expense_id)
 
 
-@router.put("/{expense.expense_id}", response_model=ExpenseGet)
-def edit_expense(expense: ExpensePut):
-    expense_updated = update_expense(expense.expense_id)
+@router.put("/{expense_id}", response_model=ExpenseGet)
+def edit_expense(expense_id: int, expense: ExpensePost):
+    expense_updated = update_expense(expense_id, expense)
     if expense_updated:
-        return get_expense(expense.expense_id)
+        return get_expense(expense_id)
     return 
 
 @router.delete("/{expense_id}")

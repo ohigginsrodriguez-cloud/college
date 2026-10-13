@@ -15,6 +15,3 @@ class ExpensePost(Expense):
 
 class ExpenseGet(Expense):
     expense_id: int
-  
-class ExpensePut(Expense):
-    expense_id: int
