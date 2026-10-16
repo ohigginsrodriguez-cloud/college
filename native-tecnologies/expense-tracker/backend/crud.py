@@ -13,16 +13,16 @@ def add_expense(expense: ExpensePost):
         try:
             cur.execute("INSERT INTO expense (name, amount, description, category, date) VALUES (%s, %s, %s, %s, %s) RETURNING expense_id",
                         (expense.name, expense.amount, expense.description, expense.category, expense.date))
-            new_expense = cur.fetchone()
+            new_id = cur.fetchone()
             conn.commit()
 
-            return new_expense[0]
+            return new_id[0]
         except Exception:
             conn.rollback()
             raise 
         finally:
             conn.close()
-            
+
 def update_expense(expense_id: int, expense: ExpensePost):
     conn = get_db()
 
@@ -64,8 +64,7 @@ def get_expenses():
             rows = dict_cur.fetchall()
             list_rows = [dict(row) for row in rows]
             return list_rows 
-        
-        except Exception:
+
             raise
         finally:
             conn.close()
@@ -80,8 +79,7 @@ def get_expense(expense_id: int):
             if row is None:
                 return
             return dict(row)
-        
-        except Exception:
+
             raise
         finally:
             conn.close()

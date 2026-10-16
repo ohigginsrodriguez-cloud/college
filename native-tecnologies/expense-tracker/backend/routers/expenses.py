@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from crud import add_expense, get_expenses, get_expense, update_expense, remove_expense
 from models import ExpensePost, ExpenseGet
 
@@ -9,10 +9,10 @@ router = APIRouter(
         responses={404: {"description": "Not found"}},
         )
 
-@router.post("/", response_model=ExpenseGet)
+@router.post("/", response_model=ExpenseGet, status_code=201)
 def create_expense(expense: ExpensePost):
-    new_expense = add_expense(expense)
-    return get_expense(new_expense)
+    new_id = add_expense(expense)
+    return get_expense(new_id)
 
 @router.get("/", response_model=list[ExpenseGet])
 def read_expenses():
@@ -21,17 +21,22 @@ def read_expenses():
 
 @router.get("/{expense_id}", response_model=ExpenseGet)
 def read_expense_by_id(expense_id: int):
-    return get_expense(expense_id)
+    expense = get_expense(expense_id) 
+    if not expense: 
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return expense
 
 
 @router.put("/{expense_id}", response_model=ExpenseGet)
 def edit_expense(expense_id: int, expense: ExpensePost):
     expense_updated = update_expense(expense_id, expense)
-    if expense_updated:
-        return get_expense(expense_id)
-    return 
+    if not expense_updated:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return get_expense(expense_id)
 
 @router.delete("/{expense_id}")
 def delete_expense(expense_id: int):
-    if remove_expense(expense_id):
-        return {"message": "expense deleted succesfully"}
+    expense = remove_expense(expense_id)
+    if not expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    return {"message": "expense deleted succesfully"}
