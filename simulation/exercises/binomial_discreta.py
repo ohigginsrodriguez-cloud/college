@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 n = 20
 p = 0.08
 
+
 dist = stats.binom(n, p)
 
 p_exacto = dist.pmf(2)
